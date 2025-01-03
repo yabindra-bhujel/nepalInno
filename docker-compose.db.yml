@@ -1,9 +1,9 @@
 services:
   database:
-    container_name: budd
+    container_name: nepalinno
     image: postgres:latest
     environment:
-      POSTGRES_DB: budd
+      POSTGRES_DB: nepalinno
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
 
@@ -14,9 +14,9 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - budd_app
+      - nepalinno_app
 volumes:
   db_data:
 
 networks:
-  budd_app:
+  nepalinno_app:
