@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const BaseUrl = () => {
-  return `http://localhost:8000/api/`;
+  return `http://localhost:8000/api/v1`;
 };
 
 const instance = axios.create({

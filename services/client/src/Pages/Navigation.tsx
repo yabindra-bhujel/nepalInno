@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { LinkItem } from "../component/navigration/LinkItem";
 import { Footer } from "../component/navigration/Footer";
 import { useUser } from "../hooks/useUsers";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { StatusActions } from "../features/userSlice";
 import instance from "../config/instance";
 
@@ -14,17 +14,14 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
   const { status } = useUser();
   const isAuthenticated = status === StatusActions.succeeded;
   const navigate = useNavigate();
-
-  if (status === StatusActions.failed) {
-    navigate("/login");
-    return null;
-  }
-
+  const location = useLocation();
 
   const logout = async () => {
-     await instance.post("/user/logout");
-      navigate("/login");
-  }
+    await instance.post("/auth/logout");
+    navigate("/login");
+  };
+
+  const isCreateBlogPage = location.pathname === "/create-blog";
 
   return (
     <>
@@ -43,18 +40,17 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
             <div className="flex space-x-4">
               {isAuthenticated ? (
                 <>
-                  <button
-                    onClick={() => {
-                      navigate("/create-post");
-                    }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                  >
-                    Create Post
-                  </button>
-                  <button
-                    onClick={logout}
-                    className="text-red-500"
-                  >
+                  {!isCreateBlogPage && (
+                    <button
+                      onClick={() => {
+                        navigate("/create-blog");
+                      }}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                    >
+                      Create Post
+                    </button>
+                  )}
+                  <button onClick={logout} className="text-red-500">
                     Logout
                   </button>
                 </>

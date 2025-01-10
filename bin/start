@@ -10,6 +10,12 @@ done
 
 shift $((OPTIND - 1))
 
+# export configuration
+export DATABASE_URL=postgresql://postgres:root@localhost:5432/nepalinno?sslmode=disable
+
+export PATH=$PATH:$(go env GOPATH)/bin
+
+
 #環境変数の設定
 CONTAINER_NAME="nepalinno"
 DATABASE_NAME="nepalinno"
@@ -54,7 +60,14 @@ if [ -n "$FLG_DATABASE" ]; then
     if [ $? -eq 1 ]; then
         docker exec $CONTAINER_NAME psql -U postgres -c "CREATE DATABASE $DATABASE_NAME;"
         echo "Database '$DATABASE_NAME' created!"
+
+
     fi
+
+    # Create `uuid-ossp` extension
+    echo "Creating the 'uuid-ossp' extension..."
+    docker exec $CONTAINER_NAME psql -U postgres -d $DATABASE_NAME -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
+    echo "'uuid-ossp' extension created!"
 fi
 
 
@@ -62,7 +75,7 @@ cd services/api
 echo "Starting the API server..."
 # go run main.go
 
-bin/start
+bin/start  &
 
 cd ../client
 

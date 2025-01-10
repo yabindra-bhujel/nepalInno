@@ -2,8 +2,9 @@ package config
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres" // PostgreSQL dialect
+	"gorm.io/gorm"
+	"gorm.io/driver/postgres"
+	"github.com/yabindra-bhujel/nepalInno/internal/entity"
 	"log"
 	"os"
 )
@@ -20,17 +21,30 @@ func InitDB() error {
 	}
 
 	// Open the database connection
-	db, err = gorm.Open("postgres", databaseUrl)
+	db, err = gorm.Open(postgres.Open(databaseUrl), &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("Error connecting to the database: %v", err)
 	}
 
 	// Check if the connection is successful by performing a ping
-	if err = db.DB().Ping(); err != nil {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("Error getting database instance: %v", err)
+	}
+	if err = sqlDB.Ping(); err != nil {
 		return fmt.Errorf("Error pinging the database: %v", err)
 	}
 
 	log.Println("Connection to the database established successfully.")
+	log.Println("Migrating the database...")
+	if err = db.AutoMigrate(
+		&entity.User{},
+		&entity.BlogTag{},
+		&entity.Blog{},
+	); err != nil {
+		return fmt.Errorf("Error migrating the database: %v", err)
+	}
+	log.Println("Database migration completed successfully.")
 	return nil
 }
 
@@ -40,7 +54,11 @@ func GetDB() *gorm.DB {
 
 func CloseDB() error {
 	if db != nil {
-		return db.Close()
+		sqlDB, err := db.DB()
+		if err != nil {
+			return fmt.Errorf("Error getting database instance: %v", err)
+		}
+		return sqlDB.Close()
 	}
 	return nil
 }

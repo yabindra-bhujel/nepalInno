@@ -28,11 +28,11 @@ const Login = () => {
 
 
   const saveGoogleUserData = async(credentialResponse: any) => {
-    const response = await instance.post("user/google-auth", {
-     credentialResponse,
+    const response = await instance.post("auth/google_user_create", {
+      credential: credentialResponse.credential,
     });
 
-    if (response.status === 201) {
+    if (response.status === 200) {
      navigate("/");
     }
   };

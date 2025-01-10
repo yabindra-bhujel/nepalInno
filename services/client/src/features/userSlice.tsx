@@ -8,7 +8,7 @@ export enum StatusActions {
   failed = "failed",
 }
 export const fetchMe = createAsyncThunk("user/me", async () => {
-  const response = await instance.get("/user/me");
+  const response = await instance.get("/auth/me");
   return response.data;
 });
 

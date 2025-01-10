@@ -1,15 +1,77 @@
 basePath: /api/v1
 definitions:
-  router.Item:
+  entity.Blog:
     properties:
+      author:
+        $ref: '#/definitions/entity.User'
+      author_id:
+        type: string
+      content:
+        type: string
+      created_at:
+        description: Timestamps
+        type: string
+      deleted_at:
+        type: string
       id:
         type: string
-      name:
+      is_published:
+        type: boolean
+      thumbnail_image:
         type: string
-      price:
-        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
     type: object
-host: localhost:8080
+  entity.User:
+    properties:
+      auth_provider:
+        type: string
+      blogs:
+        description: relationships
+        items:
+          $ref: '#/definitions/entity.Blog'
+        type: array
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      is_active:
+        type: boolean
+      is_verified:
+        type: boolean
+      last_login:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  router.BlogInput:
+    properties:
+      content:
+        type: string
+      tags:
+        description: Tag names or IDs
+        items:
+          type: string
+        type: array
+      thumbnail_image:
+        description: Thumbnail URL
+        type: string
+      title:
+        type: string
+    type: object
+host: localhost:8000
 info:
   contact: {}
   description: this is the documentation for the Budd API service. Budd is a Nepal-based
@@ -17,96 +79,169 @@ info:
   title: Budd API Documentation
   version: "1.0"
 paths:
-  /items:
-    get:
+  /auth/google_user_create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user using Google OAuth credentials or return an existing
+        user.
+      parameters:
+      - description: Google OAuth Token
+        in: body
+        name: credential
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/router.Item'
-            type: array
-      summary: Get all items
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Google User Creation
       tags:
-      - items
+      - User
+  /auth/logout:
     post:
+      consumes:
+      - application/json
+      description: Logout the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout
+      tags:
+      - User
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get the user details if authenticated
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get if the user is authenticated
+      tags:
+      - User
+  /blog:
+    post:
+      consumes:
+      - application/json
+      description: Create a new blog post.
       parameters:
-      - description: Item to create
+      - description: Blog post details
         in: body
-        name: item
+        name: blog
         required: true
         schema:
-          $ref: '#/definitions/router.Item'
+          $ref: '#/definitions/router.BlogInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Blog'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create Blog Post
+      tags:
+      - Blog
+  /blog/save:
+    post:
+      consumes:
+      - application/json
+      description: Save a new blog post.
+      parameters:
+      - description: Blog post details
+        in: body
+        name: blog
+        required: true
+        schema:
+          $ref: '#/definitions/router.BlogInput'
+      produces:
+      - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/router.Item'
-      summary: Create a new item
+            $ref: '#/definitions/entity.Blog'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Save Blog Post
       tags:
-      - items
-  /items/{id}:
-    delete:
-      parameters:
-      - description: Item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No Content
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-      summary: Delete an item
-      tags:
-      - items
-    get:
-      parameters:
-      - description: Item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/router.Item'
-        "404":
-          description: Not Found
-          schema:
-            type: string
-      summary: Get an item by ID
-      tags:
-      - items
-    put:
-      parameters:
-      - description: Item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Updated item
-        in: body
-        name: item
-        required: true
-        schema:
-          $ref: '#/definitions/router.Item'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/router.Item'
-        "404":
-          description: Not Found
-          schema:
-            type: string
-      summary: Update an existing item
-      tags:
-      - items
+      - Blog
 swagger: "2.0"

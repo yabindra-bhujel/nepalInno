@@ -7,19 +7,55 @@ import (
 	_ "github.com/yabindra-bhujel/nepalInno/docs"
 	"github.com/yabindra-bhujel/nepalInno/internal/router"
 	"github.com/yabindra-bhujel/nepalInno/internal/config"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/go-playground/validator/v10"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"net/http"
 )
+
+const PORT = "8000"
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+// Validate performs validation
+func (cv *CustomValidator) Validate(i interface{}) error {
+	return cv.validator.Struct(i)
+}
 
 // @title Budd API Documentation
 // @version 1.0
 // @description this is the documentation for the Budd API service. Budd is a Nepal-based tech blogging platform.
-// @host localhost:8080
+// @host localhost:8000
 // @BasePath /api/v1
 func main() {
 	e := echo.New()
+
+		// Register the custom validator
+	e.Validator = &CustomValidator{validator: validator.New()}
+
+	// Middleware
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+    AllowOrigins: []string{"http://localhost:5173"},
+    AllowMethods: []string{
+        http.MethodGet, http.MethodPost, http.MethodPut, 
+        http.MethodDelete, http.MethodOptions,
+    },
+    AllowHeaders: []string{
+        echo.HeaderOrigin, echo.HeaderContentType, 
+        echo.HeaderAccept, echo.HeaderAuthorization,
+    },
+    AllowCredentials: true,
+}))
+
+
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
 	// inital database connection
 	if err := config.InitDB(); err != nil {
@@ -40,7 +76,8 @@ func main() {
 	go func() {
 		log.Println("Starting the server on http://localhost:8000")
 		log.Println("For API documentation, visit http://localhost:8000/swagger/index.html")
-		if err := e.Start(":8000"); err != nil {
+		port := ":8000"
+		if err := e.Start(port); err != nil {
 			log.Fatalf("Server failed to start: %v", err)
 		}
 	}()

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set the GOPATH
+export PATH=$PATH:$(go env GOPATH)/bin
+
 # Start the server
 air
 
