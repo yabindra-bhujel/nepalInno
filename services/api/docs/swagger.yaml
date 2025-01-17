@@ -74,9 +74,6 @@ definitions:
         type: boolean
       last_login:
         type: string
-      occupation:
-        description: json fields
-        type: string
       password:
         type: string
       role:
@@ -135,6 +132,17 @@ definitions:
       image:
         type: string
       name:
+        type: string
+    type: object
+  schama.UserResponse:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      image:
         type: string
     type: object
 host: localhost:8000
@@ -220,7 +228,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.User'
+            $ref: '#/definitions/schama.UserResponse'
         "401":
           description: Unauthorized
           schema:

@@ -128,7 +128,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.User"
+                            "$ref": "#/definitions/schama.UserResponse"
                         }
                     },
                     "401": {
@@ -467,10 +467,6 @@ const docTemplate = `{
                 "last_login": {
                     "type": "string"
                 },
-                "occupation": {
-                    "description": "json fields",
-                    "type": "string"
-                },
                 "password": {
                     "type": "string"
                 },
@@ -558,6 +554,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "schama.UserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
                     "type": "string"
                 }
             }
