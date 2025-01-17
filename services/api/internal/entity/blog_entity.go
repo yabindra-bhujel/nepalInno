@@ -18,6 +18,9 @@ type Blog struct {
 	AuthorID  uuid.UUID `json:"author_id"`
 	Author    User      `gorm:"foreignKey:AuthorID" json:"author"`
 
+	TotalViews int64 `gorm:"default:0" json:"total_views"`
+	TimeToRead int64 `json:"time_to_read"`
+
 	// Timestamps
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
