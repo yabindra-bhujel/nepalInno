@@ -10,6 +10,7 @@ import (
 	"github.com/yabindra-bhujel/nepalInno/internal/services"
 	"github.com/yabindra-bhujel/nepalInno/internal/middleware"
 	"github.com/yabindra-bhujel/nepalInno/internal/utils"
+    "github.com/yabindra-bhujel/nepalInno/internal/schema"
 )
 
 // UserRouters sets up routes related to user functionality.
@@ -99,7 +100,7 @@ func createUserFromGoogleAuth(c echo.Context, userService *services.UserService)
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Success      200 {object} entity.User
+// @Success      200 {object} schama.UserResponse
 // @Failure      401 {object} map[string]string
 // @Router       /auth/me [get]
 func me(c echo.Context, userService *services.UserService) error {
@@ -110,7 +111,14 @@ func me(c echo.Context, userService *services.UserService) error {
         return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
     }
 
-    return c.JSON(http.StatusOK, user) 
+    userResponse := &schama.UserResponse{
+        ID:        user.ID.String(),
+        Email:    user.Email,
+        FullName: *user.FullName,
+        Image:    *user.Image,
+    }
+
+    return c.JSON(http.StatusOK, userResponse) 
 }
 
 // @Summary      Logout
