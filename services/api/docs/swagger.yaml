@@ -17,11 +17,36 @@ definitions:
         type: string
       is_published:
         type: boolean
+      tags:
+        description: Many-to-Many relationship with BlogTag using the blog_tag_associations
+          table
+        items:
+          $ref: '#/definitions/entity.BlogTag'
+        type: array
       thumbnail_image:
         type: string
+      time_to_read:
+        type: integer
       title:
         type: string
+      total_views:
+        type: integer
       updated_at:
+        type: string
+    type: object
+  entity.BlogTag:
+    properties:
+      blogs:
+        description: Many-to-Many relationship with Blog
+        items:
+          $ref: '#/definitions/entity.Blog'
+        type: array
+      created_at:
+        description: Timestamps
+        type: string
+      id:
+        type: string
+      name:
         type: string
     type: object
   entity.User:
@@ -49,6 +74,9 @@ definitions:
         type: boolean
       last_login:
         type: string
+      occupation:
+        description: json fields
+        type: string
       password:
         type: string
       role:
@@ -56,7 +84,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  router.BlogInput:
+  schama.BlogInput:
     properties:
       content:
         type: string
@@ -69,6 +97,44 @@ definitions:
         description: Thumbnail URL
         type: string
       title:
+        type: string
+    type: object
+  schama.BlogOutput:
+    properties:
+      author_id:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      is_published:
+        type: boolean
+      tags:
+        items:
+          type: string
+        type: array
+      thumbnail:
+        type: string
+      time_to_read:
+        type: integer
+      title:
+        type: string
+      total_views:
+        type: integer
+      user:
+        $ref: '#/definitions/schama.UserOutput'
+    type: object
+  schama.UserOutput:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
         type: string
     type: object
 host: localhost:8000
@@ -165,6 +231,28 @@ paths:
       tags:
       - User
   /blog:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all blog posts.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/schama.BlogOutput'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get All Blog Posts
+      tags:
+      - Blog
     post:
       consumes:
       - application/json
@@ -175,14 +263,14 @@ paths:
         name: blog
         required: true
         schema:
-          $ref: '#/definitions/router.BlogInput'
+          $ref: '#/definitions/schama.BlogInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.Blog'
+            $ref: '#/definitions/schama.BlogOutput'
         "400":
           description: Bad Request
           schema:
@@ -204,6 +292,45 @@ paths:
       summary: Create Blog Post
       tags:
       - Blog
+  /blog/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a blog post by its ID.
+      parameters:
+      - description: Blog post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schama.BlogOutput'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Blog Post by ID
+      tags:
+      - Blog
   /blog/save:
     post:
       consumes:
@@ -215,14 +342,14 @@ paths:
         name: blog
         required: true
         schema:
-          $ref: '#/definitions/router.BlogInput'
+          $ref: '#/definitions/schama.BlogInput'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/entity.Blog'
+            $ref: '#/definitions/schama.BlogOutput'
         "400":
           description: Bad Request
           schema:

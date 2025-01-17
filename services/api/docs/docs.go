@@ -144,6 +144,39 @@ const docTemplate = `{
             }
         },
         "/blog": {
+            "get": {
+                "description": "Retrieve all blog posts.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Get All Blog Posts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/schama.BlogOutput"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new blog post.",
                 "consumes": [
@@ -163,7 +196,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router.BlogInput"
+                            "$ref": "#/definitions/schama.BlogInput"
                         }
                     }
                 ],
@@ -171,7 +204,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.Blog"
+                            "$ref": "#/definitions/schama.BlogOutput"
                         }
                     },
                     "400": {
@@ -224,7 +257,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router.BlogInput"
+                            "$ref": "#/definitions/schama.BlogInput"
                         }
                     }
                 ],
@@ -232,7 +265,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/entity.Blog"
+                            "$ref": "#/definitions/schama.BlogOutput"
                         }
                     },
                     "400": {
@@ -246,6 +279,65 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/blog/{id}": {
+            "get": {
+                "description": "Retrieve a blog post by its ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Get Blog Post by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Blog post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schama.BlogOutput"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -292,13 +384,48 @@ const docTemplate = `{
                 "is_published": {
                     "type": "boolean"
                 },
+                "tags": {
+                    "description": "Many-to-Many relationship with BlogTag using the blog_tag_associations table",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.BlogTag"
+                    }
+                },
                 "thumbnail_image": {
                     "type": "string"
+                },
+                "time_to_read": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"
                 },
+                "total_views": {
+                    "type": "integer"
+                },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.BlogTag": {
+            "type": "object",
+            "properties": {
+                "blogs": {
+                    "description": "Many-to-Many relationship with Blog",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Blog"
+                    }
+                },
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -340,6 +467,10 @@ const docTemplate = `{
                 "last_login": {
                     "type": "string"
                 },
+                "occupation": {
+                    "description": "json fields",
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -351,7 +482,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router.BlogInput": {
+        "schama.BlogInput": {
             "type": "object",
             "properties": {
                 "content": {
@@ -372,6 +503,64 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "schama.BlogOutput": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_published": {
+                    "type": "boolean"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "time_to_read": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "total_views": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/schama.UserOutput"
+                }
+            }
+        },
+        "schama.UserOutput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
@@ -386,6 +575,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "this is the documentation for the Budd API service. Budd is a Nepal-based tech blogging platform.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
