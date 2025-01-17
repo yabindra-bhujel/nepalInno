@@ -1,6 +1,7 @@
 package services
 
 import (
+    "strings"
 	"net/http"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -65,6 +66,10 @@ func (s *BlogService) Create(c echo.Context, isSaveOnly bool, input schama.BlogI
         }
     }
 
+    // calculate the time to read from the content
+    timeToRead := calculateTimeToRead(input.Content)
+
+
     // Create the blog entity
     blog := &entity.Blog{
         Title:       input.Title,
@@ -72,6 +77,8 @@ func (s *BlogService) Create(c echo.Context, isSaveOnly bool, input schama.BlogI
         AuthorID:    authorUUID,
         Thumbnail:   input.Thumbnail,
         Tags:        blogTags,
+        TimeToRead:  int64(timeToRead),
+        TotalViews:  0,
         IsPublished: true,
     }
 
@@ -242,4 +249,13 @@ func (s *BlogService) GetBlogByID(c echo.Context, userService UserService) error
 
     // Respond with the blog
     return c.JSON(http.StatusOK, blogOutput)
+}
+
+
+func calculateTimeToRead(content string) float64 {
+    // Calculate the time to read based on the average reading speed of 200 words per minute
+    // and the total number of words in the content
+    const wordsPerMinute = 200
+    words := strings.Fields(content)
+    return float64(len(words)) / wordsPerMinute
 }
