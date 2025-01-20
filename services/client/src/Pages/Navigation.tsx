@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
-import { Footer } from "../component/navigration/Footer";
+import { Footer } from "../components/navigation/Footer";
 import { useNavigate } from "react-router-dom";
 import instance from "../config/instance";
-import { TopBar } from "../component/navigration/TopBar";
+import { TopBar } from "../components/navigation/TopBar";
 interface NavigationProps {
   children: ReactNode;
 }
