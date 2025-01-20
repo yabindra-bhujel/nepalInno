@@ -10,12 +10,11 @@ type BlogTag struct {
 	Name string    `json:"name"`
 
 	// Many-to-Many relationship with Blog
-	Blogs []Blog `gorm:"many2many:blog_tag_associations;" json:"blogs"`
+	Blogs []Blog `gorm:"many2many:blog_tag_associations;onDelete:CASCADE" json:"blogs"`
 
 	// Timestamps
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 }
-
 func (BlogTag) TableName() string {
 	return "blog_tags"
 }

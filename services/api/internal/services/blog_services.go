@@ -206,6 +206,14 @@ func (s *BlogService) GetBlogByID(c echo.Context, userService UserService) error
         return c.JSON(http.StatusNotFound, map[string]string{"error": "Blog not found"})
     }
 
+      var thumbnail string
+
+        if blog.Thumbnail != nil {
+            thumbnail = *blog.Thumbnail
+        } else {
+            thumbnail = ""
+        }
+
     
     if err != nil {
         return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -227,7 +235,7 @@ func (s *BlogService) GetBlogByID(c echo.Context, userService UserService) error
         ID:          blog.ID.String(),
         Title:       blog.Title,
         Content:     blog.Content,
-        Thumbnail:   *blog.Thumbnail,
+        Thumbnail:   thumbnail,
         Tags:        convertTagsToStrings(tags),
         IsPublished: blog.IsPublished,
         CreatedAt:   blog.CreatedAt.Format("2006-01-02"),
@@ -256,5 +264,10 @@ func calculateTimeToRead(content string) float64 {
     // and the total number of words in the content
     const wordsPerMinute = 200
     words := strings.Fields(content)
-    return float64(len(words)) / wordsPerMinute
+    min := float64(len(words)) / wordsPerMinute
+    // if the time to read is less than 1 minute, set it to 1 minute
+    if min < 1 {
+        return 1
+    }
+    return min
 }
