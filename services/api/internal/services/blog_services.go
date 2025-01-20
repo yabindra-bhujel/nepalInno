@@ -100,7 +100,6 @@ func (s *BlogService) Create(c echo.Context, isSaveOnly bool, input schama.BlogI
         ID:          createdBlog.ID.String(),
         Title:       createdBlog.Title,
         Content:     createdBlog.Content,
-        AuthorID:    createdBlog.AuthorID.String(),
         Thumbnail:   *createdBlog.Thumbnail,
         Tags:        make([]string, len(createdBlog.Tags)),
         IsPublished: createdBlog.IsPublished,

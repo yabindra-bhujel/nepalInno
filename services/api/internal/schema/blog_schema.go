@@ -27,7 +27,6 @@ type BlogOutput struct {
 	CreatedAt   string   `json:"created_at"`
 	TimeToRead  int      `json:"time_to_read"`
 	TotalViews  int      `json:"total_views"`
-	AuthorID string `json:"author_id"`
 	User        UserOutput `json:"user"`
 }
 
