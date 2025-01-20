@@ -12,7 +12,6 @@ export const handleImageStorage = async (file: File) => {
 
       const imageFilePath = `assets/images/${imageName}`;
       const githubRepo = "yabindra-bhujel/Image-Storeage";
-      const githubToken = process.env.GITHUB_ACCESS_KEY as string;
 
       try {
         const imageUrl = await uploadGitHubFile(githubRepo, imageFilePath, base64Image, githubToken);
