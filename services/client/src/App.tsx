@@ -1,10 +1,8 @@
-import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Home } from "./Pages/Home";
 import Login from "./Pages/Auth/Login";
 import { Blog } from "./Pages/BlogById";
 import { CreateBlog } from "./Pages/CreateBlog";
-import { ProtectedRoute } from "./config/ProtectedRoute";
 
 function App() {
   return (

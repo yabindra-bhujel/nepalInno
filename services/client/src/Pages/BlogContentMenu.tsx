@@ -60,7 +60,7 @@ export const BlogContentMenu = ({ tocList }: BlogContentMenuProps) => {
               <a
                 href={anchorLink}
                 className={`text-sm font-medium 
-    ${activeAnchor === anchorLink ? "text-indigo-600" : "text-gray-700"} 
+    ${activeAnchor === anchorLink ? "text-indigo-600" : "text-white"} 
     dark:${activeAnchor === anchorLink ? "text-indigo-600" : "text-gray-300"} 
     hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline transition-all`}
                 onClick={(e) => {
