@@ -94,12 +94,20 @@ func (s *BlogService) Create(c echo.Context, isSaveOnly bool, input schama.BlogI
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
+	var thumbnail string
+
+	if blog.Thumbnail != nil {
+		thumbnail = *blog.Thumbnail
+	} else {
+		thumbnail = ""
+	}
+
 	// Convert the created blog to output format
 	output := schama.BlogOutput{
 		ID:          createdBlog.ID.String(),
 		Title:       createdBlog.Title,
 		Content:     createdBlog.Content,
-		Thumbnail:   *createdBlog.Thumbnail,
+		Thumbnail:   thumbnail,
 		Tags:        make([]string, len(createdBlog.Tags)),
 		IsPublished: createdBlog.IsPublished,
 		CreatedAt:   createdBlog.CreatedAt.Format("2006-01-02 15:04:05"),
