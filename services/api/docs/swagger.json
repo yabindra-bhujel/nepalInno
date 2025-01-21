@@ -292,6 +292,65 @@
                 }
             }
         },
+        "/blog/view/{id}": {
+            "put": {
+                "description": "Update the view count of a blog post.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Update Blog Views",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Blog post ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schama.BlogOutput"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/blog/{id}": {
             "get": {
                 "description": "Retrieve a blog post by its ID.",
@@ -497,9 +556,6 @@
         "schama.BlogOutput": {
             "type": "object",
             "properties": {
-                "author_id": {
-                    "type": "string"
-                },
                 "content": {
                     "type": "string"
                 },

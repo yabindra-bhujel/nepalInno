@@ -98,8 +98,6 @@ definitions:
     type: object
   schama.BlogOutput:
     properties:
-      author_id:
-        type: string
       content:
         type: string
       created_at:
@@ -377,6 +375,45 @@ paths:
               type: string
             type: object
       summary: Save Blog Post
+      tags:
+      - Blog
+  /blog/view/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update the view count of a blog post.
+      parameters:
+      - description: Blog post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schama.BlogOutput'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update Blog Views
       tags:
       - Blog
 swagger: "2.0"
