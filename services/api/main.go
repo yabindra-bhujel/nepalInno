@@ -2,18 +2,18 @@ package main
 
 import (
 	"context"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	_ "github.com/yabindra-bhujel/nepalInno/docs"
-	"github.com/yabindra-bhujel/nepalInno/internal/router"
 	"github.com/yabindra-bhujel/nepalInno/internal/config"
-	"github.com/labstack/echo/v4/middleware"
-	"github.com/go-playground/validator/v10"
+	"github.com/yabindra-bhujel/nepalInno/internal/router"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"net/http"
 )
 
 const PORT = "8000"
@@ -35,24 +35,22 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 func main() {
 	e := echo.New()
 
-		// Register the custom validator
+	// Register the custom validator
 	e.Validator = &CustomValidator{validator: validator.New()}
 
 	// Middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-    AllowOrigins: []string{"http://localhost:5173"},
-    AllowMethods: []string{
-        http.MethodGet, http.MethodPost, http.MethodPut, 
-        http.MethodDelete, http.MethodOptions,
-    },
-    AllowHeaders: []string{
-        echo.HeaderOrigin, echo.HeaderContentType, 
-        echo.HeaderAccept, echo.HeaderAuthorization,
-    },
-    AllowCredentials: true,
-}))
-
-
+		AllowOrigins: []string{"http://localhost:5173"},
+		AllowMethods: []string{
+			http.MethodGet, http.MethodPost, http.MethodPut,
+			http.MethodDelete, http.MethodOptions,
+		},
+		AllowHeaders: []string{
+			echo.HeaderOrigin, echo.HeaderContentType,
+			echo.HeaderAccept, echo.HeaderAuthorization,
+		},
+		AllowCredentials: true,
+	}))
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

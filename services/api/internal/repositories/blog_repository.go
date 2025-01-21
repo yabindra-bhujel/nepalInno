@@ -40,8 +40,9 @@ func (repo *BlogRepository) FindByID(id string) (*entity.Blog, error) {
 }
 
 // Update updates an existing blog post in the database.
-func (repo *BlogRepository) Update(blog *entity.Blog) error {
-	return repo.db.Save(blog).Error
+func (repo *BlogRepository) Update(blog *entity.Blog) (*entity.Blog, error) {
+	err := repo.db.Save(blog).Error
+	return blog, err
 }
 
 // Delete removes a blog post (soft delete) by its ID.

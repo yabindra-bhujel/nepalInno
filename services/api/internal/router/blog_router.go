@@ -3,10 +3,10 @@ package router
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/yabindra-bhujel/nepalInno/internal/config"
-	"github.com/yabindra-bhujel/nepalInno/internal/repositories"
-	"github.com/yabindra-bhujel/nepalInno/internal/services"
 	"github.com/yabindra-bhujel/nepalInno/internal/middleware"
+	"github.com/yabindra-bhujel/nepalInno/internal/repositories"
 	"github.com/yabindra-bhujel/nepalInno/internal/schema"
+	"github.com/yabindra-bhujel/nepalInno/internal/services"
 )
 
 // BlogRouters sets up routes related to blog functionality.
@@ -16,7 +16,7 @@ func BlogRouters(api *echo.Group) {
 	blogService := services.NewBlogService(repositories.NewBlogRepository(db))
 	userService := services.NewUserService(repositories.NewUserRepository(db))
 
-	// Set up routes
+	// only can use authenticated user
 	api.POST("/blog", middleware.AuthMiddleware(func(c echo.Context) error {
 		return createBlog(c, blogService)
 	}))
@@ -24,6 +24,10 @@ func BlogRouters(api *echo.Group) {
 		return save(c, blogService)
 	}))
 
+	api.PUT("/blog/view/:id", middleware.AuthMiddleware(func(c echo.Context) error {
+		return updateBlogViews(c, blogService)
+	}))
+	// can be accessed by anyone
 	api.GET("/blog", func(c echo.Context) error {
 		return getAllBlogs(c, blogService, userService)
 	})
@@ -89,4 +93,20 @@ func getAllBlogs(c echo.Context, blogService *services.BlogService, userService 
 // @Router       /blog/{id} [get]
 func getBlogByID(c echo.Context, blogService *services.BlogService, userService *services.UserService) error {
 	return blogService.GetBlogByID(c, *userService)
+}
+
+
+// @Summary      Update Blog Views
+// @Description  Update the view count of a blog post.
+// @Tags         Blog
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Blog post ID"
+// @Success      200 {object} schama.BlogOutput
+// @Failure      400 {object} map[string]string
+// @Failure      404 {object} map[string]string
+// @Failure      500 {object} map[string]string
+// @Router       /blog/view/{id} [put]
+func updateBlogViews(c echo.Context, blogService *services.BlogService) error {
+	return blogService.UpdateBlogView(c)
 }
