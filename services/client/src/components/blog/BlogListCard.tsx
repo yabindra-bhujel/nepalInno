@@ -1,12 +1,13 @@
 import { BlogAuthor } from "../BlogAuthor";
 import { useNavigate } from "react-router-dom";
 import { BlogPost } from "../../types/interface/blog-interface";
+import instance from "../../config/instance";
 
 export const BlogListCard = ({ blog }: { blog: BlogPost }) => {
   const navigate = useNavigate();
 
-  const handleCardClick = () => {
-    // TODO: Handle to add total views
+  const handleCardClick = async() => {
+    await instance.put(`blog/view/${blog.id}`);
     navigate(`/blog/${blog.id}`);
   };
 
