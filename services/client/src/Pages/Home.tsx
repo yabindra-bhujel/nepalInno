@@ -3,6 +3,7 @@ import { Navigation } from "./Navigation";
 import instance from "../config/instance";
 import { BlogListCard } from "../components/blog/BlogListCard";
 import { BlogPost } from "../types/interface/blog-interface";
+import { TagList } from "../components/blog/TagList";
 
 export const Home = () => {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
@@ -40,7 +41,11 @@ export const Home = () => {
           </div>
 
           {/* Right */}
-          <div className="hidden lg:block w-1/6">show something</div>
+          <div className="hidden lg:block w-1/6">
+            <div className="bg-white">
+              <TagList />
+            </div>
+          </div>
         </div>
       </div>
     </Navigation>
