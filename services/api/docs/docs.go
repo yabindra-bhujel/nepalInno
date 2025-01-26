@@ -156,6 +156,26 @@ const docTemplate = `{
                     "Blog"
                 ],
                 "summary": "Get All Blog Posts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search keyword",
+                        "name": "search_keyword",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -298,50 +318,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/blog/search/": {
-            "get": {
-                "description": "Search blog posts by tags and title.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Blog"
-                ],
-                "summary": "Search Blog Posts by Tags and Title",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Search query",
-                        "name": "query",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/schama.BlogOutput"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/blog/tags": {
             "get": {
                 "description": "Retrieve all tags.",
@@ -361,7 +337,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/schama.TagOutput"
                             }
                         }
                     },
@@ -673,6 +649,17 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/schama.UserOutput"
+                }
+            }
+        },
+        "schama.TagOutput": {
+            "type": "object",
+            "properties": {
+                "blog_count": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
