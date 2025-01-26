@@ -29,39 +29,35 @@ export const Blog = () => {
 
   useEffect(() => {
     if (blogData.length > 0) {
-      setContentTOC(generateTableOfContents(blogData[0].content)); 
+      setContentTOC(generateTableOfContents(blogData[0].content));
     }
   }, [blogData]);
 
   return (
-    <>
-      <div className="bg-gray-100 py-5 absolute top-0 left-0 w-full h-full">
-        <div className="flex justify-between max-w-8xl mx-auto">
-          {/* Left */}
-          <div
-            className="hidden lg:block w-1/4 ml-4"
-            style={{ height: "90vh", overflowY: "auto" }}
-          >
-            <BlogContentMenu tocList={contentTOC} />
-          </div>
+    <div className="bg-gray-100 min-h-screen py-5 fixed">
+      <div className="flex justify-between max-w-8xl mx-auto">
+        {/* Left Sidebar */}
+        <div className="hidden lg:block w-1/5 ml-4 h-[90vh] overflow-y-auto min-w-[300px]">
+        {/* only show if have toc */}
+        {Object.keys(contentTOC).length > 0 && (
+          <BlogContentMenu tocList={contentTOC} />
+        )}
+        </div>
 
-          {/* Center */}
-          <div className="w-full lg:max-w-[800px] px-4 sm:px-6 lg:px-8 bg-white h-[calc(100vh-5rem)] overflow-y-auto">
-            {blogData.map((post) => (
-              <BlogPost key={post.id} post={post} />
-            ))}
-            {blogData.length > 0 && (
-              <BlogContent content={blogData[0].content} />
-            )}
-          </div>
+        {/* Center Content (スクロール可能) */}
+        <div className="w-full lg:max-w-[900px] px-4 sm:px-6 lg:px-8 bg-white h-[calc(100vh-2rem)] overflow-y-auto mb-4">
+          {blogData.map((post) => (
+            <BlogPost key={post.id} post={post} />
+          ))}
+          {blogData.length > 0 && <BlogContent content={blogData[0].content} />}
+        </div>
 
-          {/* Right */}
-          <div className="hidden lg:block w-1/3">
-            <p className="ml-20">関連記事</p>
-          </div>
+        {/* Right Sidebar */}
+        <div className="hidden lg:block w-1/5">
+          <p className="ml-20">関連記事</p>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
