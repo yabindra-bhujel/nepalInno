@@ -34,3 +34,8 @@ type BlogListOutput struct {
 	Blogs []BlogOutput `json:"blogs"`
 	User UserOutput `json:"user"`
 }
+
+type TagOutput struct {
+	Name  string `json:"name"`
+	BlogCount int    `json:"blog_count"`
+}

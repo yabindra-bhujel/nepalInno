@@ -80,9 +80,27 @@ func (repo *BlogRepository) GetTagsByBlogID(blogID string) ([]entity.BlogTag, er
 }
 
 
-// FindAllTags retrieves all tags from the database.
-func (repo *BlogRepository) FindAllTags( ) ([]entity.BlogTag, error) {
-	var tags []entity.BlogTag
-	err := repo.db.Find(&tags).Error
-	return tags, err
+func (repo *BlogRepository) FindAllTags() ([]map[string]interface{}, error) {
+	var results []map[string]interface{}
+
+	// Perform the join between the BlogTag and BlogTagAssociation tables
+	// Count the number of blogs associated with each tag
+	err := repo.db.Table("blog_tags").
+		Select("blog_tags.id, blog_tags.name, COUNT(blog_tag_associations.blog_id) AS blog_count").
+		Joins("LEFT JOIN blog_tag_associations ON blog_tag_associations.blog_tag_id = blog_tags.id").
+		Group("blog_tags.id").
+		Scan(&results).Error
+
+	return results, err
+}
+
+
+func (repo *BlogRepository) Search(query string) ([]entity.Blog, error) {
+	var blogs []entity.Blog
+	// Using Joins to search in both Blog's title and BlogTag's name
+	err := repo.db.Joins("JOIN blog_tag_associations bta ON bta.blog_id = blogs.id").
+		Joins("JOIN blog_tags bt ON bt.id = bta.blog_tag_id").
+		Where("blogs.title LIKE ? OR bt.name LIKE ?", "%"+query+"%", "%"+query+"%").
+		Find(&blogs).Error
+	return blogs, err
 }

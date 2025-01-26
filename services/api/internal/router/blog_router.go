@@ -24,15 +24,19 @@ func BlogRouters(api *echo.Group) {
 		return save(c, blogService)
 	}))
 
-	api.PUT("/blog/view/:id", middleware.AuthMiddleware(func(c echo.Context) error {
+	api.PUT("/blog/view/:id", func(c echo.Context) error {
 		return updateBlogViews(c, blogService)
-	}))
+	})
 	// can be accessed by anyone
 	api.GET("/blog", func(c echo.Context) error {
 		return getAllBlogs(c, blogService, userService)
 	})
 	api.GET("/blog/:id", func(c echo.Context) error {
 		return getBlogByID(c, blogService, userService)
+	})
+
+	api.GET("/blog/search", func(c echo.Context) error {
+    return searchBlog(c, blogService, userService)
 	})
 
 	api.GET("/blog/tags", func(c echo.Context) error {
@@ -121,9 +125,22 @@ func updateBlogViews(c echo.Context, blogService *services.BlogService) error {
 // @Tags         Blog
 // @Accept       json
 // @Produce      json
-// @Success      200 {object} []string
+// @Success      200 {object} []schama.TagOutput
 // @Failure      500 {object} map[string]string
 // @Router       /blog/tags [get]
 func getTags(c echo.Context, blogService *services.BlogService) error {
 	return blogService.GetTags(c)
+}
+
+// @Summary      Search Blog Posts by Tags and Title
+// @Description  Search blog posts by tags and title.
+// @Tags         Blog
+// @Accept       json
+// @Produce      json
+// @Param        query path string true "Search query"
+// @Success      200 {object} []schama.BlogOutput
+// @Failure      500 {object} map[string]string
+// @Router       /blog/search/ [get]
+func searchBlog(c echo.Context, blogService *services.BlogService, userService *services.UserService) error {
+	return blogService.Search(c, *userService)
 }

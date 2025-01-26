@@ -303,20 +303,85 @@ func (s *BlogService) UpdateBlogView(c echo.Context) error {
 
 
 func (s *BlogService) GetTags(c echo.Context) error {
-	// Fetch all tags
+	// Fetch all tags with the associated blog count
 	tags, err := s.repo.FindAllTags()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
-	// Initialize an empty slice to hold the output
-	var output []string
+	var output []map[string]interface{}
 
-	// Loop through each tag and populate the output
 	for _, tag := range tags {
-		output = append(output, tag.Name)
+		output = append(output, map[string]interface{}{
+			"id":         tag["id"],
+			"name":       tag["name"],
+			"count":      tag["blog_count"],
+		})
 	}
 
-	// Respond with the list of tags
+	return c.JSON(http.StatusOK, output)
+}
+
+
+func (s *BlogService) Search(c echo.Context, userService UserService) error {
+	query := c.QueryParam("query")
+	blogs, err := s.repo.Search(query)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	// Initialize an empty slice to hold the output
+	var output schama.BlogListOutput
+
+	// Loop through each blog to fetch user data (author's email) and populate the output
+	for _, blog := range blogs {
+		// Fetch user by ID (AuthorID) for the blog
+		user, err := userService.FindUserByID(blog.AuthorID.String())
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		}
+
+		var thumbnail string
+
+		if blog.Thumbnail != nil {
+			thumbnail = *blog.Thumbnail
+		} else {
+			thumbnail = ""
+		}
+
+		blogUUID, err := uuid.Parse(blog.ID.String())
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Invalid blog ID format"})
+		}
+		tags, _ := s.repo.GetTagsByBlogID(blogUUID.String())
+
+		blogOutput := schama.BlogOutput{
+			ID:          blog.ID.String(),
+			Title:       blog.Title,
+			Content:     blog.Content,
+			Thumbnail:   thumbnail,
+			Tags:        convertTagsToStrings(tags),
+			IsPublished: blog.IsPublished,
+			CreatedAt:   blog.CreatedAt.Format("2006-01-02"),
+			TimeToRead:  int(blog.TimeToRead),
+			TotalViews:  int(blog.TotalViews),
+			User: schama.UserOutput{
+				ID:    user.ID.String(),
+				Email: user.Email,
+				Name:  *user.FullName,
+				Image: *user.Image,
+			},
+		}
+
+		// Populate the Tags field with tag names
+		for j, tag := range blog.Tags {
+			blogOutput.Tags[j] = tag.Name
+		}
+
+		// Append the blogOutput to the Blogs slice in the output
+		output.Blogs = append(output.Blogs, blogOutput)
+	}
+
+	// Respond with the list of blogs
 	return c.JSON(http.StatusOK, output)
 }
