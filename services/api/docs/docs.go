@@ -298,6 +298,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/blog/tags": {
+            "get": {
+                "description": "Retrieve all tags.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Get tag list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/blog/view/{id}": {
             "put": {
                 "description": "Update the view count of a blog post.",

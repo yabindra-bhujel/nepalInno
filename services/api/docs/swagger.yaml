@@ -377,6 +377,29 @@ paths:
       summary: Save Blog Post
       tags:
       - Blog
+  /blog/tags:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all tags.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get tag list
+      tags:
+      - Blog
   /blog/view/{id}:
     put:
       consumes:
