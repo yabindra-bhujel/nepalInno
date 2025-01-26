@@ -32,7 +32,11 @@ type BlogOutput struct {
 
 type BlogListOutput struct {
 	Blogs []BlogOutput `json:"blogs"`
-	User UserOutput `json:"user"`
+	TotalCount int          `json:"total_count"`
+	TotalPage  int          `json:"total_pages"`
+	Limit int          `json:"limit"`
+	CurrentPage  int          `json:"current_page"`
+
 }
 
 type TagOutput struct {

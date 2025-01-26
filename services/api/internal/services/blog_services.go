@@ -1,13 +1,14 @@
 package services
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/yabindra-bhujel/nepalInno/internal/entity"
 	"github.com/yabindra-bhujel/nepalInno/internal/repositories"
 	"github.com/yabindra-bhujel/nepalInno/internal/schema"
-	"net/http"
-	"strings"
 )
 
 // BlogService provides blog-related business logic.
@@ -126,12 +127,16 @@ func (s *BlogService) Create(c echo.Context, isSaveOnly bool, input schama.BlogI
 
 // fetch all blog post and return the list of blog post
 func (s *BlogService) GetAllBlog(c echo.Context, userService UserService) error {
-	// Fetch all blogs
-	blogs, err := s.repo.FindAll()
+	page := c.QueryParam("page")
+	limit := c.QueryParam("limit")
+	searchKeyword := c.QueryParam("search_keyword")
+	
+	// Fetch all blogs and footer (pagination details)
+	blogs, footer, err := s.repo.FindAll(page, limit, searchKeyword)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
-
+	
 	// Initialize an empty slice to hold the output
 	var output schama.BlogListOutput
 
@@ -144,7 +149,6 @@ func (s *BlogService) GetAllBlog(c echo.Context, userService UserService) error 
 		}
 
 		var thumbnail string
-
 		if blog.Thumbnail != nil {
 			thumbnail = *blog.Thumbnail
 		} else {
@@ -155,6 +159,7 @@ func (s *BlogService) GetAllBlog(c echo.Context, userService UserService) error 
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Invalid blog ID format"})
 		}
+
 		tags, _ := s.repo.GetTagsByBlogID(blogUUID.String())
 
 		blogOutput := schama.BlogOutput{
@@ -175,18 +180,41 @@ func (s *BlogService) GetAllBlog(c echo.Context, userService UserService) error 
 			},
 		}
 
-		// Populate the Tags field with tag names
-		for j, tag := range blog.Tags {
-			blogOutput.Tags[j] = tag.Name
-		}
-
 		// Append the blogOutput to the Blogs slice in the output
 		output.Blogs = append(output.Blogs, blogOutput)
 	}
 
+	// Extract values from the footer map and handle potential errors
+	totalCount, ok := footer["total_count"].(int)
+	if !ok {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "total_count is not an integer"})
+	}
+
+	totalPages, ok := footer["total_pages"].(int)
+	if !ok {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "total_pages is not an integer"})
+	}
+
+	pageInt, ok := footer["page"].(int)
+	if !ok {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "page is not an integer"})
+	}
+
+	limitInt, ok := footer["limit"].(int)
+	if !ok {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "limit is not an integer"})
+	}
+
+	// Populate footer details in the output
+	output.TotalCount = totalCount
+	output.TotalPage = totalPages
+	output.CurrentPage = pageInt
+	output.Limit = limitInt
+
 	// Respond with the list of blogs
 	return c.JSON(http.StatusOK, output)
 }
+
 
 // convertTagsToStrings converts a slice of BlogTag to a slice of strings
 func convertTagsToStrings(tags []entity.BlogTag) []string {
@@ -319,69 +347,5 @@ func (s *BlogService) GetTags(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, output)
-}
-
-
-func (s *BlogService) Search(c echo.Context, userService UserService) error {
-	query := c.QueryParam("query")
-	blogs, err := s.repo.Search(query)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-	}
-
-	// Initialize an empty slice to hold the output
-	var output schama.BlogListOutput
-
-	// Loop through each blog to fetch user data (author's email) and populate the output
-	for _, blog := range blogs {
-		// Fetch user by ID (AuthorID) for the blog
-		user, err := userService.FindUserByID(blog.AuthorID.String())
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-		}
-
-		var thumbnail string
-
-		if blog.Thumbnail != nil {
-			thumbnail = *blog.Thumbnail
-		} else {
-			thumbnail = ""
-		}
-
-		blogUUID, err := uuid.Parse(blog.ID.String())
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Invalid blog ID format"})
-		}
-		tags, _ := s.repo.GetTagsByBlogID(blogUUID.String())
-
-		blogOutput := schama.BlogOutput{
-			ID:          blog.ID.String(),
-			Title:       blog.Title,
-			Content:     blog.Content,
-			Thumbnail:   thumbnail,
-			Tags:        convertTagsToStrings(tags),
-			IsPublished: blog.IsPublished,
-			CreatedAt:   blog.CreatedAt.Format("2006-01-02"),
-			TimeToRead:  int(blog.TimeToRead),
-			TotalViews:  int(blog.TotalViews),
-			User: schama.UserOutput{
-				ID:    user.ID.String(),
-				Email: user.Email,
-				Name:  *user.FullName,
-				Image: *user.Image,
-			},
-		}
-
-		// Populate the Tags field with tag names
-		for j, tag := range blog.Tags {
-			blogOutput.Tags[j] = tag.Name
-		}
-
-		// Append the blogOutput to the Blogs slice in the output
-		output.Blogs = append(output.Blogs, blogOutput)
-	}
-
-	// Respond with the list of blogs
 	return c.JSON(http.StatusOK, output)
 }

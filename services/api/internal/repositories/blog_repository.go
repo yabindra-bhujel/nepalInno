@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/yabindra-bhujel/nepalInno/internal/entity"
 	"gorm.io/gorm"
 )
@@ -23,10 +25,64 @@ func (repo *BlogRepository) Create(blog *entity.Blog) (*entity.Blog, error) {
 }
 
 // FindAll retrieves all blog posts from the database.
-func (repo *BlogRepository) FindAll() ([]entity.Blog, error) {
+func (repo *BlogRepository) FindAll(page string, limit string, search_keyword string,) ([]entity.Blog, map[string]interface{}, error) {
+	
 	var blogs []entity.Blog
-	err := repo.db.Find(&blogs).Error
-	return blogs, err
+
+	// Convert page and limit to integers
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Calculate the offset based on the page
+	offset := (pageInt - 1) * limitInt
+
+	// Using Joins to search in both Blog's title and BlogTag's name
+	err = repo.db.Joins("JOIN blog_tag_associations bta ON bta.blog_id = blogs.id").
+		Joins("JOIN blog_tags bt ON bt.id = bta.blog_tag_id").
+		Where("blogs.title LIKE ? OR bt.name LIKE ?", "%"+search_keyword+"%", "%"+search_keyword+"%").
+		// order by created_at most viewed
+
+		Distinct().
+		Limit(limitInt).Offset(offset).Find(&blogs).Error
+	
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Query to get the total number of blogs matching the search
+	var totalCount int64
+	err = repo.db.Joins("JOIN blog_tag_associations bta ON bta.blog_id = blogs.id").
+		Joins("JOIN blog_tags bt ON bt.id = bta.blog_tag_id").
+		Where("blogs.title LIKE ? OR bt.name LIKE ?", "%"+search_keyword+"%", "%"+search_keyword+"%").
+		Model(&entity.Blog{}).Select("COUNT(DISTINCT blogs.id)").Scan(&totalCount).Error
+
+	
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Calculate the total number of pages
+	totalPages := int(totalCount) / limitInt
+	if totalCount%int64(limitInt) > 0 {
+		totalPages++
+	}
+
+	// Create the footer with pagination details
+	footer := map[string]interface{}{
+		"total_count": int(totalCount),
+		"total_pages": int(totalPages),
+		"page":        int(pageInt),
+		"limit":       int(limitInt),
+	}
+
+	return blogs, footer, nil
 }
 
 // FindByID finds a blog post by its ID.
@@ -92,15 +148,4 @@ func (repo *BlogRepository) FindAllTags() ([]map[string]interface{}, error) {
 		Scan(&results).Error
 
 	return results, err
-}
-
-
-func (repo *BlogRepository) Search(query string) ([]entity.Blog, error) {
-	var blogs []entity.Blog
-	// Using Joins to search in both Blog's title and BlogTag's name
-	err := repo.db.Joins("JOIN blog_tag_associations bta ON bta.blog_id = blogs.id").
-		Joins("JOIN blog_tags bt ON bt.id = bta.blog_tag_id").
-		Where("blogs.title LIKE ? OR bt.name LIKE ?", "%"+query+"%", "%"+query+"%").
-		Find(&blogs).Error
-	return blogs, err
 }

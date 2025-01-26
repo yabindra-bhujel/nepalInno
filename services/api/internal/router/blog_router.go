@@ -34,11 +34,6 @@ func BlogRouters(api *echo.Group) {
 	api.GET("/blog/:id", func(c echo.Context) error {
 		return getBlogByID(c, blogService, userService)
 	})
-
-	api.GET("/blog/search", func(c echo.Context) error {
-    return searchBlog(c, blogService, userService)
-	})
-
 	api.GET("/blog/tags", func(c echo.Context) error {
 		return getTags(c, blogService)
 	})
@@ -81,6 +76,9 @@ func save(c echo.Context, blogService *services.BlogService) error {
 // @Tags         Blog
 // @Accept       json
 // @Produce      json
+// @Param        page query int false "Page number"
+// @Param        limit query int false "Number of items per page"
+// @Param        search_keyword query string false "Search keyword"
 // @Success      200 {object} []schama.BlogOutput
 // @Failure      500 {object} map[string]string
 // @Router       /blog [get]
@@ -130,17 +128,4 @@ func updateBlogViews(c echo.Context, blogService *services.BlogService) error {
 // @Router       /blog/tags [get]
 func getTags(c echo.Context, blogService *services.BlogService) error {
 	return blogService.GetTags(c)
-}
-
-// @Summary      Search Blog Posts by Tags and Title
-// @Description  Search blog posts by tags and title.
-// @Tags         Blog
-// @Accept       json
-// @Produce      json
-// @Param        query path string true "Search query"
-// @Success      200 {object} []schama.BlogOutput
-// @Failure      500 {object} map[string]string
-// @Router       /blog/search/ [get]
-func searchBlog(c echo.Context, blogService *services.BlogService, userService *services.UserService) error {
-	return blogService.Search(c, *userService)
 }

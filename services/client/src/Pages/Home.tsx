@@ -8,40 +8,47 @@ import { TagList } from "../components/blog/TagList";
 export const Home = () => {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [search, setSearch] = useState("");
+  const [totalBlogs, setTotalBlogs] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(10);
 
 
-  const fetchBlogs = async () => {
-    try {
-      const response = await instance.get("/blog");
-      setBlogs([]);
-      setBlogs(response.data.blogs);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+ const fetchBlogs = async (search: string | null | undefined) => {
+   try {
+     let url = `/blog?page=${currentPage}&limit=10`;
+     if (search !== undefined && search !== null && search.trim() !== "") {
+       url += `&search_keyword=${encodeURIComponent(search)}`;
+     }
 
-  const searchBlogs = async (param: string) => {
-    try {
-      const response = await instance.get(
-        `/blog/search?query=${encodeURIComponent(param)}`
-      );
-      // 重複データを排除する
-      const uniqueBlogs = Array.from(
-        new Set(response.data.blogs.map((blog: { id: string; }) => blog.id))
-      ).map((id) => response.data.blogs.find((blog: { id: string; }) => blog.id === id));
+     const response = await instance.get(url);
 
-      setBlogs(uniqueBlogs);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+     // Reset blogs before setting new data
+     setTotalBlogs(response.data.total_count);
+     setCurrentPage(response.data.current_page);
+     setTotalPages(response.data.total_pages);
+
+     const uniqueBlogs = Array.from(
+       new Set(response.data.blogs.map((blog: { id: string }) => blog.id))
+     ).map((id) =>
+       response.data.blogs.find((blog: { id: string }) => blog.id === id)
+     );
+
+
+
+     setBlogs(uniqueBlogs);
+   } catch (error) {
+     console.error(error);
+   }
+ };
+
+
 
 useEffect(() => {
   if (search) {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        searchBlogs(search);
+        fetchBlogs(search);
       }
     };
 
@@ -58,14 +65,14 @@ useEffect(() => {
 
   useEffect(() => {
     if (!search) {
-      fetchBlogs();
+      fetchBlogs(null);
     }
-  }, [search]);
+  }, []);
 
 
   const handleTagClick = (tag: string) => {
     setSearch(tag);
-    searchBlogs(tag);
+    fetchBlogs(tag);
   };
 
 
