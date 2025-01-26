@@ -377,6 +377,35 @@ paths:
       summary: Save Blog Post
       tags:
       - Blog
+  /blog/search/:
+    get:
+      consumes:
+      - application/json
+      description: Search blog posts by tags and title.
+      parameters:
+      - description: Search query
+        in: path
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/schama.BlogOutput'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Search Blog Posts by Tags and Title
+      tags:
+      - Blog
   /blog/tags:
     get:
       consumes:
