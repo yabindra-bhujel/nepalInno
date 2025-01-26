@@ -28,13 +28,13 @@ export const TopBar: React.FC<TopBarProps> = ({ logout }) => {
         </div>
 
         {/* Search Bar */}
-        <div className="flex-1 mx-8">
+        {/* <div className="flex-1 mx-8">
           <input
             type="text"
             className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Search..."
           />
-        </div>
+        </div> */}
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-4">

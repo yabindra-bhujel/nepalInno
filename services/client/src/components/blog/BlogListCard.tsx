@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { BlogPost } from "../../types/interface/blog-interface";
 import instance from "../../config/instance";
 
-export const BlogListCard = ({ blog }: { blog: BlogPost }) => {
+export const BlogListCard = ({ blog, handleTagClick }: { blog: BlogPost, 
+  handleTagClick: (tag: string) => void
+ }) => {
   const navigate = useNavigate();
 
-  const handleCardClick = async() => {
+  const handleCardClick = async () => {
     await instance.put(`blog/view/${blog.id}`);
     navigate(`/blog/${blog.id}`);
   };
@@ -44,6 +46,7 @@ export const BlogListCard = ({ blog }: { blog: BlogPost }) => {
           {blog.tags.length > 0 &&
             blog.tags.map((tag) => (
               <span
+                onClick={() => handleTagClick(tag)}
                 className="text-xs bg-blue-100 text-blue-800 px-3 py-1 
                 rounded-full font-medium hover:bg-blue-200 transition"
                 key={tag}

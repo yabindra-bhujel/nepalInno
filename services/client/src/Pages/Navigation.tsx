@@ -17,7 +17,7 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
 
   return (
     <>
-      <nav className="py-4 border-b">
+      <nav className="py-4">
         <TopBar logout={logout} />
       </nav>
 
