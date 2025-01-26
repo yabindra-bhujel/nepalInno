@@ -34,6 +34,10 @@ func BlogRouters(api *echo.Group) {
 	api.GET("/blog/:id", func(c echo.Context) error {
 		return getBlogByID(c, blogService, userService)
 	})
+
+	api.GET("/blog/tags", func(c echo.Context) error {
+		return getTags(c, blogService)
+	})
 }
 
 // @Summary      Create Blog Post
@@ -109,4 +113,17 @@ func getBlogByID(c echo.Context, blogService *services.BlogService, userService 
 // @Router       /blog/view/{id} [put]
 func updateBlogViews(c echo.Context, blogService *services.BlogService) error {
 	return blogService.UpdateBlogView(c)
+}
+
+
+// @Summary      Get tag list
+// @Description  Retrieve all tags.
+// @Tags         Blog
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} []string
+// @Failure      500 {object} map[string]string
+// @Router       /blog/tags [get]
+func getTags(c echo.Context, blogService *services.BlogService) error {
+	return blogService.GetTags(c)
 }

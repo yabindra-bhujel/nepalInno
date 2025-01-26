@@ -78,3 +78,11 @@ func (repo *BlogRepository) GetTagsByBlogID(blogID string) ([]entity.BlogTag, er
 	// Return the Tags associated with the blog
 	return blog.Tags, nil
 }
+
+
+// FindAllTags retrieves all tags from the database.
+func (repo *BlogRepository) FindAllTags( ) ([]entity.BlogTag, error) {
+	var tags []entity.BlogTag
+	err := repo.db.Find(&tags).Error
+	return tags, err
+}

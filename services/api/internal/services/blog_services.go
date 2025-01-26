@@ -299,3 +299,24 @@ func (s *BlogService) UpdateBlogView(c echo.Context) error {
 	return c.JSON(http.StatusOK, updatedBlog)
 }
 
+
+
+
+func (s *BlogService) GetTags(c echo.Context) error {
+	// Fetch all tags
+	tags, err := s.repo.FindAllTags()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	// Initialize an empty slice to hold the output
+	var output []string
+
+	// Loop through each tag and populate the output
+	for _, tag := range tags {
+		output = append(output, tag.Name)
+	}
+
+	// Respond with the list of tags
+	return c.JSON(http.StatusOK, output)
+}
