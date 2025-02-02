@@ -45,7 +45,7 @@ export const Blog = () => {
         </div>
 
         {/* Center Content (スクロール可能) */}
-        <div className="w-full lg:max-w-[900px] px-4 sm:px-6 lg:px-8 bg-white h-[calc(100vh-2rem)] overflow-y-auto mb-4">
+        <div className="w-full px-4 sm:px-6 lg:px-8 bg-white h-[calc(100vh-2rem)] overflow-y-auto mb-4">
           {blogData.map((post) => (
             <BlogPost key={post.id} post={post} />
           ))}
